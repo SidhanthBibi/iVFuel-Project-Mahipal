@@ -108,10 +108,12 @@
     </div>
 
     <script>
+      // Function to fetch data from the API and update the UI
       function fetchData() {
-        fetch('/api/data')
+        fetch('/api/data')  // Call the API endpoint to get the latest data
           .then(res => res.json())
           .then(data => {
+            // Update the flow rate and total volume elements with the fetched data
             document.getElementById('flow-rate').textContent =
               data.flow.toFixed(2) + ' L/min';
             document.getElementById('total-volume').textContent =
@@ -119,12 +121,15 @@
           })
           .catch(error => {
             console.error('❌ Error fetching data:', error);
+            // Display an error message if fetching data fails
             document.getElementById('flow-rate').textContent = 'Error';
             document.getElementById('total-volume').textContent = 'Error';
           });
       }
 
+      // Fetch data every second and update the UI
       setInterval(fetchData, 1000);
+      // Initial fetch when the page loads
       fetchData();
     </script>
   </body>
