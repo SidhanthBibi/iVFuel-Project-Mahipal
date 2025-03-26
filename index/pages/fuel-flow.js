@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "../components/ui/card";
+import { Button } from "../components/ui/button";
 
 export default function FuelDashboard() {
   const [data, setData] = useState({ flow: 0, total: 0 });
