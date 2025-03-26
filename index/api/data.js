@@ -1,21 +1,12 @@
-import fs from 'fs';
-const filePath = '/tmp/latestData.json';
+import { redis } from '../lib/redis';
 
 export default async function handler(req, res) {
+  const cached = await redis.get('fuelData');
+  const latestData = cached ? JSON.parse(cached) : { flow: 0, total: 0 };
+
+  console.log('📤 Serving latest data:', latestData);
+
   res.setHeader('Content-Type', 'application/json');
   res.setHeader('Access-Control-Allow-Origin', '*');
-
-  let latestData = { flow: 0, total: 0 };
-
-  try {
-    if (fs.existsSync(filePath)) {
-      const data = fs.readFileSync(filePath, 'utf-8');
-      latestData = JSON.parse(data);
-    }
-  } catch (error) {
-    console.error("❌ Error reading data:", error);
-  }
-
-  console.log("📤 Serving latest data:", latestData);
   res.status(200).json(latestData);
 }

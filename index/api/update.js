@@ -1,19 +1,17 @@
-import fs from 'fs';
-const filePath = '/tmp/latestData.json';
+import { redis } from '../lib/redis';
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
     const { flow, total } = req.body;
 
     if (!isNaN(flow) && !isNaN(total)) {
-      const latestData = { flow, total };
-      fs.writeFileSync(filePath, JSON.stringify(latestData));
-      console.log("✅ Received and saved:", latestData);
-      return res.status(200).json({ message: "Stored successfully" });
+      await redis.set('fuelData', JSON.stringify({ flow, total }));
+      console.log('✅ Updated Redis:', { flow, total });
+      return res.status(200).json({ message: 'Stored successfully' });
     }
 
-    return res.status(400).json({ message: "Invalid data" });
+    return res.status(400).json({ message: 'Invalid data' });
   }
 
-  return res.status(405).json({ message: "Only POST allowed" });
+  return res.status(405).json({ message: 'Only POST allowed' });
 }
