@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
-export default function FuelFlow() {
+export default function FuelDashboard() {
   const [data, setData] = useState({ flow: 0, total: 0 });
   const [error, setError] = useState(false);
 
@@ -8,7 +10,10 @@ export default function FuelFlow() {
     try {
       const res = await fetch("/api/data");
       const json = await res.json();
-      setData(json);
+      setData({
+        flow: json.flow ?? 0,
+        total: json.total ?? 0,
+      });
       setError(false);
     } catch (err) {
       console.error("❌ Error fetching data:", err);
@@ -23,44 +28,36 @@ export default function FuelFlow() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-indigo-900 to-pink-600 text-white flex flex-col items-center justify-center px-6">
-      <nav className="w-full max-w-6xl flex justify-between items-center py-6">
-        <h1 className="text-4xl font-bold text-white tracking-widest drop-shadow-md">
-          Fuel Flow Monitor
-        </h1>
-        <button
-          onClick={() => (window.location.href = "/")}
-          className="bg-white text-indigo-700 font-semibold px-4 py-2 rounded-lg shadow hover:bg-indigo-200 transition"
-        >
-          ⬅ Back to Dashboard
-        </button>
+    <div className="min-h-screen bg-gradient-to-br from-black via-indigo-900 to-pink-600 text-white flex flex-col">
+      <nav className="p-4 flex justify-between items-center max-w-6xl mx-auto w-full">
+        <h1 className="text-3xl font-bold tracking-wide text-white">Fuel Flow Monitor</h1>
+        <Button variant="outline" onClick={() => (window.location.href = "/home.html")}>
+          Back to Dashboard
+        </Button>
       </nav>
 
-      <main className="flex-1 w-full max-w-4xl flex flex-col items-center justify-center">
-        <h2 className="text-5xl font-extrabold text-blue-400 mb-12 animate-pulse">
-          Real-Time Flow 💧
-        </h2>
+      <main className="flex-1 flex flex-col justify-center items-center text-center">
+        <h2 className="text-5xl font-extrabold text-blue-400 mb-10">REAL-TIME FLOW</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+          <Card className="bg-white/10 backdrop-blur-md shadow-lg rounded-2xl p-6 w-72">
+            <CardContent>
+              <p className="text-gray-300 text-lg mb-2">Flow Rate</p>
+              <p className="text-4xl font-bold text-blue-400">
+                {error || data.flow == null ? "Error" : `${data.flow.toFixed(2)} L/min`}
+              </p>
+            </CardContent>
+          </Card>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-10 w-full px-4">
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl shadow-lg p-8 text-center">
-            <p className="text-lg text-gray-300 mb-2">Flow Rate</p>
-            <p className="text-5xl font-bold text-blue-400">
-              {error ? "Error" : `${data.flow.toFixed(2)} L/min`}
-            </p>
-          </div>
-
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl shadow-lg p-8 text-center">
-            <p className="text-lg text-gray-300 mb-2">Total Volume</p>
-            <p className="text-5xl font-bold text-blue-400">
-              {error ? "Error" : `${data.total.toFixed(2)} L`}
-            </p>
-          </div>
+          <Card className="bg-white/10 backdrop-blur-md shadow-lg rounded-2xl p-6 w-72">
+            <CardContent>
+              <p className="text-gray-300 text-lg mb-2">Total Volume</p>
+              <p className="text-4xl font-bold text-blue-400">
+                {error || data.total == null ? "Error" : `${data.total.toFixed(2)} L`}
+              </p>
+            </CardContent>
+          </Card>
         </div>
       </main>
-
-      <footer className="text-xs text-white/40 mt-10">
-        Built by Mahipal ✨
-      </footer>
     </div>
   );
 }
