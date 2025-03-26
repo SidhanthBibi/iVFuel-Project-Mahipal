@@ -1,10 +1,8 @@
 #include <WiFiS3.h>
 #include <Wire.h>
 #include <ArduinoHttpClient.h>
-#include <avr/pgmspace.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
-#include "website_files_progmem.h"
 
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
@@ -14,11 +12,11 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 const char ssid[] = "mahipal";
 const char pass[] = "12345678";
 
-WiFiServer server(80);
-const char serverAddress[] = "ivfuels.vercel.app"; // Vercel endpoint
+// Vercel API settings
+const char serverAddress[] = "ivfuels.vercel.app";
 int port = 443; // HTTPS
 WiFiSSLClient wifi;
-HttpClient client = HttpClient(wifi, serverAddress, port);
+HttpClient client(wifi, serverAddress, port);
 
 // Flow sensor setup
 const int flowSensorPin = 2;
@@ -26,30 +24,33 @@ volatile int pulseCount = 0;
 float calibrationFactor = 4.5;
 
 unsigned long lastUpdate = 0;
-float flowRate = 0;
-float totalLitres = 0;
+float flowRate = 0.0;
+float totalLitres = 0.0;
 
-void displayStatus(String statusLine) {
+void pulseCounter() {
+  pulseCount++;
+}
+
+void showDisplay(String statusLine) {
   display.clearDisplay();
   display.setTextSize(1);
   display.setCursor(0, 0);
-  display.print("Flow: "); display.print(flowRate, 2); display.println(" L/min");
-  display.print("Total: "); display.print(totalLitres, 2); display.println(" L");
+  display.print("Flow: ");
+  display.print(flowRate, 2);
+  display.println(" L/min");
+
+  display.print("Total: ");
+  display.print(totalLitres, 2);
+  display.println(" L");
+
   display.setCursor(0, 40);
   display.println(statusLine);
   display.display();
 }
 
-void sendProgmem(WiFiClient& client, const char* data) {
-  char c;
-  while ((c = pgm_read_byte(data++)) != 0) {
-    client.write(c);
-  }
-}
-
 void sendToVercel(float flow, float total) {
   String payload = "{\"flow\":" + String(flow, 2) + ",\"total\":" + String(total, 2) + "}";
-  displayStatus("Sending ➤ 🔄");
+  showDisplay("Sending -->");
 
   client.beginRequest();
   client.post("/api/update");
@@ -61,15 +62,19 @@ void sendToVercel(float flow, float total) {
 
   int status = client.responseStatusCode();
   String response = client.responseBody();
-  Serial.print("Status: "); Serial.println(status);
-  Serial.print("Response: "); Serial.println(response);
+
+  Serial.print("Status: ");
+  Serial.println(status);
+  Serial.print("Response: ");
+  Serial.println(response);
 
   if (status == 200) {
-    displayStatus("Sent to Vercel ✔️");
+    showDisplay("Sent to Vercel OK");
   } else {
-    displayStatus("Error ❌ Code: " + String(status));
+    showDisplay("Err Code: " + String(status));
   }
 }
+
 
 void setup() {
   Serial.begin(9600);
@@ -80,13 +85,13 @@ void setup() {
   display.setTextSize(1);
   display.setTextColor(WHITE);
   display.setCursor(0, 0);
-  display.println("\xF0\x9F\x9A\x80 Booting...");
+  display.println("Booting...");
   display.display();
 
   pinMode(flowSensorPin, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(flowSensorPin), pulseCounter, FALLING);
 
-  Serial.print("\xF0\x9F\x93\xB6 Connecting to WiFi: ");
+  Serial.print("Connecting to WiFi: ");
   Serial.println(ssid);
   WiFi.begin(ssid, pass);
 
@@ -98,42 +103,37 @@ void setup() {
   }
 
   if (WiFi.status() == WL_CONNECTED) {
-    Serial.println("\n\xE2\x9C\x85 WiFi connected");
-    Serial.print("\xF0\x9F\x8C\x90 IP Address: ");
+    Serial.println("\nWiFi connected");
+    Serial.print("IP Address: ");
     Serial.println(WiFi.localIP());
-    server.begin();
+
     display.clearDisplay();
     display.setCursor(0, 0);
-    display.println("WiFi Connected!");
+    display.println("WiFi Connected ✓");
     display.setCursor(0, 10);
-    display.print("IP: "); display.println(WiFi.localIP());
+    display.print("IP: ");
+    display.println(WiFi.localIP());
     display.display();
   } else {
-    Serial.println("\n\xE2\x9D\x8C WiFi connection failed. Restarting...");
+    Serial.println("\nWiFi failed. Restarting...");
     display.clearDisplay();
     display.setCursor(0, 0);
-    display.println("WiFi Failed :(");
+    display.println("WiFi Failed ❌");
     display.display();
     delay(3000);
-    NVIC_SystemReset();
+    NVIC_SystemReset(); // Auto-reset
   }
 }
 
 void loop() {
   unsigned long currentMillis = millis();
 
-  if (currentMillis - lastUpdate >= 1000) {
+  if (currentMillis - lastUpdate >= 200) {  // Faster: 200ms
     detachInterrupt(digitalPinToInterrupt(flowSensorPin));
 
     flowRate = ((1000.0 / (currentMillis - lastUpdate)) * pulseCount) / calibrationFactor;
     float flowLitres = flowRate / 60.0;
     totalLitres += flowLitres;
-
-    // Print the flow rate and total liters to the Serial Monitor
-    Serial.print("Flow Rate: ");
-    Serial.println(flowRate);
-    Serial.print("Total Litres: ");
-    Serial.println(totalLitres);
 
     lastUpdate = currentMillis;
     pulseCount = 0;
@@ -142,66 +142,4 @@ void loop() {
 
     sendToVercel(flowRate, totalLitres);
   }
-
-  WiFiClient client = server.available();
-  if (client) {
-    while (client.connected()) {
-      if (client.available()) {
-        String req = client.readStringUntil('\r');
-        client.flush();
-
-        if (req.indexOf("GET /data") >= 0) {
-          String json = "{\"flow\":" + String(flowRate, 2) + ",\"total\":" + String(totalLitres, 2) + "}";
-          client.println("HTTP/1.1 200 OK");
-          client.println("Content-Type: application/json");
-          client.println("Connection: close");
-          client.println();
-          client.println(json);
-        } else if (req.indexOf("GET /index.html") >= 0 || req.indexOf("GET /") >= 0) {
-          client.println("HTTP/1.1 200 OK");
-          client.println("Content-Type: text/html");
-          client.println("Connection: close");
-          client.println();
-          sendProgmem(client, index_html);
-        } else if (req.indexOf("GET /home.html") >= 0) {
-          client.println("HTTP/1.1 200 OK");
-          client.println("Content-Type: text/html");
-          client.println("Connection: close");
-          client.println();
-          sendProgmem(client, home_html);
-        } else if (req.indexOf("GET /fuel-flow.html") >= 0) {
-          client.println("HTTP/1.1 200 OK");
-          client.println("Content-Type: text/html");
-          client.println("Connection: close");
-          client.println();
-          sendProgmem(client, fuel_flow_html);
-        } else if (req.indexOf("GET /style.css") >= 0) {
-          client.println("HTTP/1.1 200 OK");
-          client.println("Content-Type: text/css");
-          client.println("Connection: close");
-          client.println();
-          sendProgmem(client, style_css);
-        } else if (req.indexOf("GET /script.js") >= 0) {
-          client.println("HTTP/1.1 200 OK");
-          client.println("Content-Type: application/javascript");
-          client.println("Connection: close");
-          client.println();
-          sendProgmem(client, script_js);
-        } else {
-          client.println("HTTP/1.1 404 Not Found");
-          client.println("Content-Type: text/plain");
-          client.println("Connection: close");
-          client.println();
-          client.println("404 Not Found");
-        }
-        break;
-      }
-    }
-    delay(1);
-    client.stop();
-  }
-}
-
-void pulseCounter() {
-  pulseCount++;
 }

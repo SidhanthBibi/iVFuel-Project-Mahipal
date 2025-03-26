@@ -1,14 +1,17 @@
-import { latestData } from './data';
+import fs from 'fs';
+import path from 'path';
 
-export default async function handler(req, res) {
+const dataFile = path.resolve('./data.json');
+
+export default function handler(req, res) {
   if (req.method === 'POST') {
     try {
       const { flow, total } = req.body;
 
       if (!isNaN(flow) && !isNaN(total)) {
-        latestData.flow = flow;
-        latestData.total = total;
-        console.log('✅ Received and updated data:', latestData);
+        const latestData = { flow, total };
+        fs.writeFileSync(dataFile, JSON.stringify(latestData));
+        console.log('✅ Received and saved data:', latestData);
         return res.status(200).json({ message: 'Stored successfully' });
       }
 

@@ -40,7 +40,7 @@ export default function FuelFlow() {
                   document.getElementById('total-volume').textContent = 'Error';
                 });
             }
-            setInterval(fetchData, 1000);
+            setInterval(fetchData, 200);
             window.onload = fetchData;
           `
         }} />
