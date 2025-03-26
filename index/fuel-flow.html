@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fuel Flow Monitor</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: Arial, sans-serif;
+      }
+
+      body {
+        min-height: 100vh;
+        background: linear-gradient(45deg, #000000, #4b0082, #ff69b4);
+        display: flex;
+        flex-direction: column;
+      }
+
+      nav {
+        padding: 1rem;
+        color: white;
+      }
+
+      .nav-content {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .back-btn {
+        background: white;
+        color: #1a73e8;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      .main-content {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .monitor-title {
+        font-size: 3rem;
+        color: #1a73e8;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <div class="nav-content">
+        <h2>Fuel Flow Monitor</h2>
+        <button class="back-btn" onclick="location.href='home.html'">
+          Back to Dashboard
+        </button>
+      </div>
+    </nav>
+    <div class="main-content">
+      <h1 class="monitor-title">FUEL FLOW MONITOR</h1>
+    </div>
+  </body>
+</html>
