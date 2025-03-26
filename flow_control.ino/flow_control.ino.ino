@@ -129,6 +129,12 @@ void loop() {
     float flowLitres = flowRate / 60.0;
     totalLitres += flowLitres;
 
+    // Print the flow rate and total liters to the Serial Monitor
+    Serial.print("Flow Rate: ");
+    Serial.println(flowRate);
+    Serial.print("Total Litres: ");
+    Serial.println(totalLitres);
+
     lastUpdate = currentMillis;
     pulseCount = 0;
 
