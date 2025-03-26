@@ -128,7 +128,7 @@ void setup() {
 void loop() {
   unsigned long currentMillis = millis();
 
-  if (currentMillis - lastUpdate >= 200) {  // Faster: 200ms
+  if (currentMillis - lastUpdate >= 1000) {  // Faster: 200ms
     detachInterrupt(digitalPinToInterrupt(flowSensorPin));
 
     flowRate = ((1000.0 / (currentMillis - lastUpdate)) * pulseCount) / calibrationFactor;

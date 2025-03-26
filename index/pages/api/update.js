@@ -1,26 +1,17 @@
-import fs from 'fs';
-import path from 'path';
+import { redis } from '../../lib/redis';
 
-const dataFile = path.resolve('./data.json');
-
-export default function handler(req, res) {
+export default async function handler(req, res) {
   if (req.method === 'POST') {
-    try {
-      const { flow, total } = req.body;
+    const { flow, total } = req.body;
 
-      if (!isNaN(flow) && !isNaN(total)) {
-        const latestData = { flow, total };
-        fs.writeFileSync(dataFile, JSON.stringify(latestData));
-        console.log('✅ Received and saved data:', latestData);
-        return res.status(200).json({ message: 'Stored successfully' });
-      }
-
-      return res.status(400).json({ message: 'Invalid data' });
-    } catch (err) {
-      console.error('❌ Error in POST:', err);
-      return res.status(500).json({ message: 'Internal server error' });
+    if (!isNaN(flow) && !isNaN(total)) {
+      await redis.set('latestData', { flow, total });
+      console.log('✅ Stored in Redis:', { flow, total });
+      return res.status(200).json({ message: 'Stored successfully' });
     }
-  } else {
-    res.status(405).json({ message: 'Only POST allowed' });
+
+    return res.status(400).json({ message: 'Invalid data' });
   }
+
+  return res.status(405).json({ message: 'Only POST allowed' });
 }
