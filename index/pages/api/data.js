@@ -1,4 +1,5 @@
-import { redis } from "@/lib/redis";
+import { kv } from '../../lib/redis';
+
 
 export default async function handler(req, res) {
   try {
