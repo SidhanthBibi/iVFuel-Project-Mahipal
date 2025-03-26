@@ -1,16 +1,15 @@
-// index/api/update.js
+import fs from 'fs';
+const filePath = '/tmp/latestData.json';
 
-import latestData from './dataStore.js';
-
-export default function handler(req, res) {
+export default async function handler(req, res) {
   if (req.method === 'POST') {
     const { flow, total } = req.body;
 
     if (!isNaN(flow) && !isNaN(total)) {
-      latestData.flow = flow;
-      latestData.total = total;
-      console.log("✅ Received and updated data:", latestData);
-      return res.status(200).json({ message: "Data updated successfully" });
+      const latestData = { flow, total };
+      fs.writeFileSync(filePath, JSON.stringify(latestData));
+      console.log("✅ Received and saved:", latestData);
+      return res.status(200).json({ message: "Stored successfully" });
     }
 
     return res.status(400).json({ message: "Invalid data" });
