@@ -44,14 +44,42 @@
       .main-content {
         flex: 1;
         display: flex;
+        flex-direction: column;
         justify-content: center;
         align-items: center;
+        color: white;
+        text-align: center;
       }
 
       .monitor-title {
         font-size: 3rem;
         color: #1a73e8;
-        text-align: center;
+        margin-bottom: 2rem;
+      }
+
+      .data-container {
+        display: flex;
+        gap: 2rem;
+      }
+
+      .data-card {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        padding: 1.5rem;
+        min-width: 250px;
+        backdrop-filter: blur(10px);
+      }
+
+      .data-label {
+        font-size: 1.2rem;
+        color: #94a3b8;
+        margin-bottom: 0.5rem;
+      }
+
+      .data-value {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #1a73e8;
       }
     </style>
   </head>
@@ -66,6 +94,43 @@
     </nav>
     <div class="main-content">
       <h1 class="monitor-title">FUEL FLOW MONITOR</h1>
+      
+      <div class="data-container">
+        <div class="data-card">
+          <div class="data-label">Flow Rate</div>
+          <div class="data-value" id="flow-rate">-- L/min</div>
+        </div>
+        <div class="data-card">
+          <div class="data-label">Total Volume</div>
+          <div class="data-value" id="total-volume">-- L</div>
+        </div>
+      </div>
     </div>
+
+    <script>
+      // Function to fetch data from Arduino
+      function fetchData() {
+        // Replace with your Arduino's IP address
+        fetch('http://YOUR_ARDUINO_IP_ADDRESS/data')
+          .then(response => response.json())
+          .then(data => {
+            document.getElementById('flow-rate').textContent = 
+              data.flow.toFixed(2) + ' L/min';
+            document.getElementById('total-volume').textContent = 
+              data.total.toFixed(2) + ' L';
+          })
+          .catch(error => {
+            console.error('Error fetching data:', error);
+            document.getElementById('flow-rate').textContent = 'Error';
+            document.getElementById('total-volume').textContent = 'Error';
+          });
+      }
+
+      // Fetch data every second
+      setInterval(fetchData, 1000);
+
+      // Initial fetch when page loads
+      fetchData();
+    </script>
   </body>
 </html>
