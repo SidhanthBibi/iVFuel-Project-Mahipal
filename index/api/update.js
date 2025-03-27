@@ -15,7 +15,8 @@ export async function POST(req) {
       total: parseFloat(body.total),
     });
 
-    const redisRes = await fetch(`${url}/set/fuelData`, {
+    // ✅ Changed from fuelData → latest
+    const redisRes = await fetch(`${url}/set/latest`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
