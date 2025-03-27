@@ -6,6 +6,7 @@ export async function GET() {
     const token = process.env.KV_REST_API_TOKEN;
 
     const response = await fetch(`${url}/get/fuelData`, {
+      method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -13,17 +14,26 @@ export async function GET() {
     });
 
     if (!response.ok) {
+      console.error("Failed fetching from Redis:", await response.text());
       return new Response(JSON.stringify({ flow: 0, total: 0 }), { status: 500 });
     }
 
-    const raw = await response.json();
-    const { result } = raw;
+    const { result } = await response.json();
 
     if (!result) {
+      console.warn("No result returned from Redis.");
       return new Response(JSON.stringify({ flow: 0, total: 0 }), { status: 200 });
     }
 
-    const { flow, total } = JSON.parse(result);
+    let parsed;
+    try {
+      parsed = JSON.parse(result);
+    } catch (e) {
+      console.error("Error parsing result JSON:", result);
+      return new Response(JSON.stringify({ flow: 0, total: 0 }), { status: 500 });
+    }
+
+    const { flow, total } = parsed;
     return new Response(JSON.stringify({ flow, total }), { status: 200 });
   } catch (err) {
     console.error("GET /api/data error:", err);
