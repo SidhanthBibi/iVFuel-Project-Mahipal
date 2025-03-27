@@ -8,17 +8,17 @@ import { Github, Mail, Linkedin, Globe } from "lucide-react"
 const About = ({ onLogout }) => {
   const teamMembers = [
     {
-      name: "John Doe",
-      role: "Lead Developer",
+      name: "Mahipal",
+      role: "Team Lead, Backend Developer",
       image: "/placeholder.svg?height=200&width=200",
-      bio: "IoT specialist with 5+ years of experience in fuel monitoring systems.",
+      bio: "Experienced software engineer with a passion for building scalable systems.",
       links: {
         github: "https://github.com",
         linkedin: "https://linkedin.com",
       },
     },
     {
-      name: "Jane Smith",
+      name: "Shivraj Singh",
       role: "Hardware Engineer",
       image: "/placeholder.svg?height=200&width=200",
       bio: "Electronics expert specializing in sensor calibration and precision measurement.",
@@ -28,10 +28,20 @@ const About = ({ onLogout }) => {
       },
     },
     {
-      name: "Alex Johnson",
+      name: "Sumit Kumar Panja",
+      role: "Frontend Developer",
+      image: "/placeholder.svg?height=200&width=200",
+      bio: "Frontend developer with a focus on creating responsive, user-friendly interfaces.",
+      links: {
+        github: "https://github.com",
+        linkedin: "https://linkedin.com",
+      },
+    },
+    {
+      name: "Swathi P",
       role: "UI/UX Designer",
       image: "/placeholder.svg?height=200&width=200",
-      bio: "Creating intuitive interfaces for complex monitoring systems.",
+      bio: "UI/UX designer with a focus on creating intuitive user interfaces.",
       links: {
         github: "https://github.com",
         linkedin: "https://linkedin.com",
