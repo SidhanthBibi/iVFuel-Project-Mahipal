@@ -5,15 +5,20 @@ import { motion } from "framer-motion"
 import { Droplet } from "lucide-react"
 
 const FlowRateCard = () => {
-  const [flowRate, setFlowRate] = useState(null)
+  const [flowRate, setFlowRate] = useState("0.00")
   const [lastUpdated, setLastUpdated] = useState("")
 
   useEffect(() => {
     const fetchFlowRate = async () => {
       try {
-        const res = await fetch("/api/data") // expects { flow, total }
+        const res = await fetch("/api/data")
         const json = await res.json()
-        setFlowRate(json.flow?.toFixed(2) || "0.00")
+        const flow = parseFloat(json.flow)
+        if (!isNaN(flow)) {
+          setFlowRate(flow.toFixed(2))
+        } else {
+          setFlowRate("0.00")
+        }
         setLastUpdated(new Date().toLocaleTimeString())
       } catch (err) {
         console.error("Error fetching flow rate:", err)

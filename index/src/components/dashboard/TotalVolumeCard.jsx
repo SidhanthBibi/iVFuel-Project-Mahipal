@@ -5,7 +5,7 @@ import { motion } from "framer-motion"
 import { Fuel } from "lucide-react"
 
 const TotalVolumeCard = () => {
-  const [totalVolume, setTotalVolume] = useState(null)
+  const [totalVolume, setTotalVolume] = useState("0.00")
   const [startDate] = useState(new Date().toLocaleDateString())
 
   useEffect(() => {
@@ -13,7 +13,12 @@ const TotalVolumeCard = () => {
       try {
         const res = await fetch("/api/data") // expects { flow, total }
         const json = await res.json()
-        setTotalVolume(json.total?.toFixed(2) || "0.00")
+        const total = parseFloat(json.total)
+        if (!isNaN(total)) {
+          setTotalVolume(total.toFixed(2))
+        } else {
+          setTotalVolume("0.00")
+        }
       } catch (err) {
         console.error("Error fetching total volume:", err)
         setTotalVolume("Err")
