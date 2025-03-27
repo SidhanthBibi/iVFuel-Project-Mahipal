@@ -19,7 +19,7 @@ const char fuel_flow_html[] PROGMEM = R"rawliteral(
           background: linear-gradient(45deg, #000000, #4b0082, #ff69b4);
           display: flex;
           flex-direction: column;
-        }
+        }       
   
         nav {
           padding: 1rem;
